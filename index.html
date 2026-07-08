@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="id">
+ <head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260708-05-579f504"}');</script><script src="/_sdk/f432b76fb310b513.telemetry_sdk.js" integrity="sha512-9FJQ55EKmmqhyyik8BhrMVfm0+iYYfb8uOlRsjtkxJMEI97qOVEI4PnHohDjQAtvAep0IOEpdQ64eki0sz62ug=="></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena Matematika</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet">
+  <style>
+        body { font-family: 'DM Sans', sans-serif; }
+        .bounce { animation: bounce 0.6s infinite alternate; }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+        @keyframes confetti-fall { 0% { transform: translateY(-100%) rotate(0deg); opacity:1; } 100% { transform: translateY(100vh) rotate(720deg); opacity:0; } }
+        .confetti-piece { position: fixed; width: 10px; height: 10px; animation: confetti-fall 2.5s ease-out forwards; pointer-events: none; z-index: 9999; }
+        .numpad-btn { transition: transform 0.1s, box-shadow 0.1s; }
+        .numpad-btn:active { transform: scale(0.92); box-shadow: none; }
+        @keyframes hop { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-12px) rotate(3deg); } }
+        .hop { animation: hop 0.4s ease; }
+        .rope-marker { transition: left 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes countdown-pop { 0% { transform: scale(0.3); opacity:0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity:1; } }
+        .countdown-pop { animation: countdown-pop 0.5s ease-out; }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/0179d719c431a79e.data_sdk.js" type="text/javascript" integrity="sha512-OsRvJkI5GkC3MJQcgotQYotpzrMSX415GiKKgvYdxQEEkzD/fdchShO2FMSy0PJr/tiINMXOk5Vl2zAgg6bUiA=="></script>
+  <script src="/_sdk/9432170dbd2ae0df.resizing_sdk.js" type="text/javascript" integrity="sha512-FeT+58sb1f9ejWPWFjCbJvTT+SDwGV+ngrHUnlO7TWEOoqwOLj6p256kO3vOL7DIWl1cIgrobiof8v2bOigwPg=="></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen overflow-hidden"><!-- MENU SCREEN -->
+  <div id="menu-screen" class="w-full min-h-screen flex flex-col items-center justify-center p-4">
+   <h1 data-template-id="main-title" class="canva-text text-4xl md:text-6xl font-black text-center mb-2 drop-shadow-lg"></h1>
+   <p data-template-id="main-subtitle" class="canva-text text-lg md:text-xl text-center mb-10 opacity-80"></p>
+   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl w-full"><button onclick="showGame('balap')" data-template-id="btn-balap" class="canva-button bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl hover:scale-105 transition-all text-center"> </button> <button onclick="showGame('tarik')" data-template-id="btn-tarik" class="canva-button bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl hover:scale-105 transition-all text-center"> </button>
+   </div>
+   <p data-template-id="creator-text" class="canva-text mt-8 text-sm opacity-60"></p>
+  </div><!-- MODE SELECT (Tarik Tambang) -->
+  <div id="mode-screen" class="w-full min-h-screen hidden flex-col items-center p-4 pt-8"><button onclick="backToMenu()" class="absolute top-4 left-4 bg-white/80 rounded-full px-4 py-2 shadow font-bold">← Kembali</button>
+   <h2 data-template-id="mode-title" class="canva-text text-2xl md:text-4xl font-black text-center mb-2"></h2>
+   <p data-template-id="mode-subtitle" class="canva-text text-center mb-6 opacity-70"></p>
+   <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 max-w-4xl w-full" id="mode-grid"></div>
+  </div><!-- COUNTDOWN OVERLAY -->
+  <div id="countdown-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60">
+   <div id="countdown-text" class="text-white text-8xl md:text-9xl font-black countdown-pop"></div>
+  </div><!-- BALAP KARUNG GAME -->
+  <div id="balap-screen" class="w-full hidden" style="min-height: calc(100 * min(var(--vh,1vh),1vh));"><button onclick="backToMenu()" class="absolute top-2 left-2 z-10 bg-white/80 rounded-full px-3 py-1 shadow text-sm font-bold">← Menu</button>
+   <h2 data-template-id="balap-title" class="canva-text text-xl md:text-3xl font-black text-center pt-2 pb-1"></h2>
+   <div class="flex flex-col md:flex-row w-full h-full gap-1 p-1" style="min-height: calc(85 * min(var(--vh,1vh),1vh));"><!-- Player 1 -->
+    <div class="flex-1 flex flex-col items-center bg-blue-50 rounded-2xl p-2 shadow-inner">
+     <div class="font-bold text-blue-700 text-lg mb-1">
+      🧒 Pemain 1
+     </div>
+     <div id="b-q1" class="bg-white rounded-xl p-3 text-center font-bold text-xl shadow w-full mb-2">
+      ?
+     </div>
+     <div id="b-a1" class="bg-yellow-100 rounded-xl p-2 text-center text-2xl font-bold w-full mb-2 min-h-[40px] border-2 border-yellow-300"></div>
+     <div class="grid grid-cols-4 gap-1 w-full max-w-[220px]" id="b-pad1"></div>
+     <div class="mt-2 w-full bg-blue-200 rounded-full h-5 overflow-hidden">
+      <div id="b-bar1" class="bg-blue-500 h-full rounded-full transition-all" style="width:0%"></div>
+     </div>
+     <div id="b-pos1" class="text-xs mt-1 font-bold text-blue-700">
+      Posisi: 0/10
+     </div>
+    </div><!-- Track -->
+    <div class="flex-1 flex flex-col items-center justify-center relative overflow-hidden rounded-2xl" style="background: linear-gradient(180deg, #a8e6a3 0%, #66bb6a 100%); min-height: 200px;">
+     <div class="absolute top-0 left-0 w-3 h-full bg-white/60"></div>
+     <div class="absolute top-0 right-0 w-6 h-full" style="background: repeating-conic-gradient(#e53935 0% 25%, #fff 0% 50%) 0 0/20px 20px;"></div>
+     <div id="b-char1" class="absolute left-[5%] bottom-[55%] text-4xl transition-all duration-300">
+      🧑‍🦯
+     </div>
+     <div id="b-char2" class="absolute left-[5%] bottom-[25%] text-4xl transition-all duration-300">
+      🏃
+     </div>
+     <div class="absolute bottom-2 text-white/80 text-xs font-bold">
+      START → → → FINISH
+     </div>
+    </div><!-- Player 2 -->
+    <div class="flex-1 flex flex-col items-center bg-green-50 rounded-2xl p-2 shadow-inner">
+     <div class="font-bold text-green-700 text-lg mb-1">
+      👧 Pemain 2
+     </div>
+     <div id="b-q2" class="bg-white rounded-xl p-3 text-center font-bold text-xl shadow w-full mb-2">
+      ?
+     </div>
+     <div id="b-a2" class="bg-yellow-100 rounded-xl p-2 text-center text-2xl font-bold w-full mb-2 min-h-[40px] border-2 border-yellow-300"></div>
+     <div class="grid grid-cols-4 gap-1 w-full max-w-[220px]" id="b-pad2"></div>
+     <div class="mt-2 w-full bg-green-200 rounded-full h-5 overflow-hidden">
+      <div id="b-bar2" class="bg-green-500 h-full rounded-full transition-all" style="width:0%"></div>
+     </div>
+     <div id="b-pos2" class="text-xs mt-1 font-bold text-green-700">
+      Posisi: 0/10
+     </div>
+    </div>
+   </div>
+  </div><!-- TARIK TAMBANG GAME -->
+  <div id="tarik-screen" class="w-full hidden" style="min-height: calc(100 * min(var(--vh,1vh),1vh));"><button onclick="backToMenu()" class="absolute top-2 left-2 z-10 bg-white/80 rounded-full px-3 py-1 shadow text-sm font-bold">← Menu</button>
+   <h2 data-template-id="tarik-title" class="canva-text text-xl md:text-3xl font-black text-center pt-2 pb-1"></h2>
+   <div class="flex flex-col md:flex-row w-full gap-1 p-1" style="min-height: calc(85 * min(var(--vh,1vh),1vh));"><!-- Player 1 -->
+    <div class="flex-1 flex flex-col items-center bg-red-50 rounded-2xl p-2 shadow-inner">
+     <div class="font-bold text-red-700 text-lg mb-1">
+      🧒 Pemain 1
+     </div>
+     <div id="t-q1" class="bg-white rounded-xl p-3 text-center font-bold text-xl shadow w-full mb-2">
+      ?
+     </div>
+     <div id="t-a1" class="bg-yellow-100 rounded-xl p-2 text-center text-2xl font-bold w-full mb-2 min-h-[40px] border-2 border-yellow-300"></div>
+     <div class="grid grid-cols-4 gap-1 w-full max-w-[220px]" id="t-pad1"></div>
+    </div><!-- Rope -->
+    <div class="flex-1 flex flex-col items-center justify-center relative rounded-2xl bg-sky-100 overflow-hidden" style="min-height:200px;">
+     <div class="text-4xl absolute left-[10%] top-1/2 -translate-y-1/2">
+      🧒
+     </div>
+     <div class="text-4xl absolute right-[10%] top-1/2 -translate-y-1/2">
+      👧
+     </div>
+     <div class="absolute top-1/2 left-[15%] right-[15%] h-3 bg-amber-700 rounded -translate-y-1/2"></div>
+     <div id="t-marker" class="rope-marker absolute top-1/2 -translate-y-1/2 w-8 h-8 bg-yellow-400 rounded-lg border-4 border-yellow-600 shadow-lg" style="left:50%;margin-left:-16px;"></div>
+     <div class="absolute bottom-3 text-center text-sm font-bold text-sky-800">
+      Jawab soal untuk menarik tali!
+     </div>
+    </div><!-- Player 2 -->
+    <div class="flex-1 flex flex-col items-center bg-blue-50 rounded-2xl p-2 shadow-inner">
+     <div class="font-bold text-blue-700 text-lg mb-1">
+      👧 Pemain 2
+     </div>
+     <div id="t-q2" class="bg-white rounded-xl p-3 text-center font-bold text-xl shadow w-full mb-2">
+      ?
+     </div>
+     <div id="t-a2" class="bg-yellow-100 rounded-xl p-2 text-center text-2xl font-bold w-full mb-2 min-h-[40px] border-2 border-yellow-300"></div>
+     <div class="grid grid-cols-4 gap-1 w-full max-w-[220px]" id="t-pad2"></div>
+    </div>
+   </div>
+  </div><!-- WINNER OVERLAY -->
+  <div id="winner-overlay" class="fixed inset-0 z-40 hidden items-center justify-center bg-black/50">
+   <div class="bg-white rounded-3xl p-8 shadow-2xl text-center max-w-sm">
+    <div class="text-5xl mb-3">
+     🎉🏆🎉
+    </div>
+    <div id="winner-text" class="text-2xl font-black mb-4"></div><button onclick="backToMenu()" class="bg-gradient-to-r from-blue-500 to-green-500 text-white font-bold px-6 py-3 rounded-full shadow-lg hover:scale-105 transition">Menu Utama</button>
+   </div>
+  </div>
+  <script src="/_sdk/719055fef2a85d14.editing_sdk.js" integrity="sha512-kFqrdGgIiTOsu307feB5Cy3JVP9IayftsmCIZ0csxYBGuBmJQPhyvcnmKR8F0fTW97h5s1gAvz3SumI8zJ6OxQ=="></script>
+  <script>
+    // Audio
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, dur, type='square') {
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = type; o.frequency.value = freq; g.gain.value = 0.15;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        o.stop(audioCtx.currentTime + dur);
+    }
+    function playCorrect() { playTone(523,0.1); setTimeout(()=>playTone(659,0.1),100); setTimeout(()=>playTone(784,0.2),200); }
+    function playWrong() { playTone(200,0.3,'sawtooth'); }
+    function playCountdown() { playTone(440,0.3); }
+    function playWin() { [0,150,300,450,600].forEach((d,i)=>setTimeout(()=>playTone(523+i*100,0.2,'sine'),d)); }
+
+    // Modes
+    const MODES = [
+        {id:'tambah',icon:'➕',label:'Tambah'},{id:'kurang',icon:'➖',label:'Kurang'},
+        {id:'kali',icon:'✖',label:'Kali'},{id:'bagi',icon:'➗',label:'Bagi'},
+        {id:'pangkat2',icon:'x²',label:'Pangkat 2'},{id:'pangkat3',icon:'x³',label:'Pangkat 3'},
+        {id:'akar',icon:'√',label:'Akar'},{id:'persen',icon:'%',label:'Persen'},
+        {id:'fpb',icon:'📐',label:'FPB'},{id:'kpk',icon:'📏',label:'KPK'},
+        {id:'waktu',icon:'🕐',label:'Waktu'},{id:'jarak',icon:'📍',label:'Jarak'},
+        {id:'tambah_kurang',icon:'±',label:'Tambah Kurang'},{id:'kali_bagi',icon:'×÷',label:'Kali Bagi'},
+        {id:'campuran',icon:'🎲',label:'Campuran'},{id:'konversi',icon:'🔄',label:'Konversi'}
+    ];
+
+    let currentGame = null, currentMode = 'tambah';
+    let bPos = [0,0], tPos = 0; // tPos: -5 to +5
+    let bAnswers = [0,0], tAnswers = [0,0];
+    let gameActive = false;
+
+    function generateQuestion(mode) {
+        let a,b,q,ans;
+        const r = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+        switch(mode) {
+            case 'tambah': a=r(1,50);b=r(1,50);q=`${a} + ${b} = ?`;ans=a+b;break;
+            case 'kurang': a=r(10,99);b=r(1,a);q=`${a} - ${b} = ?`;ans=a-b;break;
+            case 'kali': a=r(2,12);b=r(2,12);q=`${a} × ${b} = ?`;ans=a*b;break;
+            case 'bagi': b=r(2,9);ans=r(2,12);a=b*ans;q=`${a} ÷ ${b} = ?`;break;
+            case 'pangkat2': a=r(2,12);q=`${a}² = ?`;ans=a*a;break;
+            case 'pangkat3': a=r(2,6);q=`${a}³ = ?`;ans=a*a*a;break;
+            case 'akar': ans=r(2,12);a=ans*ans;q=`√${a} = ?`;break;
+            case 'persen': a=r(1,10)*10;b=r(10,100);q=`${a}% dari ${b} = ?`;ans=a*b/100;break;
+            case 'fpb': { const primes=[2,3,5,7]; const p=primes[r(0,3)]; a=p*r(2,6); b=p*r(2,6); const gcd=(x,y)=>y?gcd(y,x%y):x; ans=gcd(a,b); q=`FPB(${a},${b}) = ?`;break; }
+            case 'kpk': { a=r(2,8);b=r(2,8); const gcd=(x,y)=>y?gcd(y,x%y):x; ans=(a*b)/gcd(a,b); q=`KPK(${a},${b}) = ?`;break; }
+            case 'waktu': { a=r(1,5);q=`${a} jam = ? menit`;ans=a*60;break; }
+            case 'jarak': { a=r(1,9);q=`${a} km = ? m`;ans=a*1000;break; }
+            case 'konversi': { a=r(1,9);q=`${a} m = ? cm`;ans=a*100;break; }
+            case 'tambah_kurang': if(Math.random()>0.5){a=r(1,50);b=r(1,50);q=`${a}+${b}=?`;ans=a+b;}else{a=r(10,99);b=r(1,a);q=`${a}-${b}=?`;ans=a-b;}break;
+            case 'kali_bagi': if(Math.random()>0.5){a=r(2,12);b=r(2,12);q=`${a}×${b}=?`;ans=a*b;}else{b=r(2,9);ans=r(2,12);a=b*ans;q=`${a}÷${b}=?`;}break;
+            default: a=r(1,50);b=r(1,50);q=`${a}+${b}=?`;ans=a+b;
+        }
+        return {q,ans};
+    }
+
+    function buildNumpad(containerId, player, game) {
+        const c = document.getElementById(containerId); c.innerHTML='';
+        for(let i=1;i<=9;i++) { c.appendChild(makeBtn(String(i),()=>inputDigit(player,game,String(i)))); }
+        c.appendChild(makeBtn('C',()=>clearInput(player,game),'bg-red-400 text-white'));
+        c.appendChild(makeBtn('0',()=>inputDigit(player,game,'0')));
+        c.appendChild(makeBtn('Go',()=>submitAnswer(player,game),'bg-green-500 text-white'));
+    }
+    function makeBtn(txt,fn,cls='bg-white') {
+        const b=document.createElement('button');
+        b.textContent=txt; b.className=`numpad-btn ${cls} rounded-xl p-2 font-bold text-lg shadow hover:shadow-md`; b.onclick=fn; return b;
+    }
+
+    function inputDigit(p,game,d) { if(!gameActive) return; const el=document.getElementById(`${game}-a${p+1}`); if(el.textContent.length<6) el.textContent+=d; }
+    function clearInput(p,game) { document.getElementById(`${game}-a${p+1}`).textContent=''; }
+
+    function submitAnswer(p,game) {
+        if(!gameActive) return;
+        const el=document.getElementById(`${game}-a${p+1}`);
+        const val=parseInt(el.textContent);
+        const ans = game==='b' ? bAnswers[p] : tAnswers[p];
+        if(val===ans) {
+            playCorrect(); el.textContent='✓'; el.style.background='#bbf7d0';
+            setTimeout(()=>{el.textContent='';el.style.background='';},400);
+            if(game==='b') { bPos[p]++; updateBalap(); if(bPos[p]>=10) winGame(p); else newQuestion(p,'b'); }
+            else { tPos += p===0 ? -1 : 1; updateTarik(); if(Math.abs(tPos)>=5) winGame(tPos<0?0:1); else newQuestion(p,'t'); }
+        } else { playWrong(); el.style.background='#fecaca'; setTimeout(()=>{el.textContent='';el.style.background='';},300); }
+    }
+
+    function newQuestion(p,game) {
+        const mode = game==='b'?'campuran':currentMode;
+        const {q,ans} = generateQuestion(mode);
+        document.getElementById(`${game}-q${p+1}`).textContent = q;
+        if(game==='b') bAnswers[p]=ans; else tAnswers[p]=ans;
+    }
+
+    function updateBalap() {
+        for(let i=0;i<2;i++) {
+            document.getElementById(`b-bar${i+1}`).style.width = (bPos[i]*10)+'%';
+            document.getElementById(`b-pos${i+1}`).textContent = `Posisi: ${bPos[i]}/10`;
+            document.getElementById(`b-char${i+1}`).style.left = (5+bPos[i]*8.5)+'%';
+        }
+    }
+    function updateTarik() {
+        document.getElementById('t-marker').style.left = `calc(50% + ${tPos*7}%)`;
+    }
+
+    function winGame(p) {
+        gameActive=false; playWin(); spawnConfetti();
+        document.getElementById('winner-text').textContent = `Pemain ${p+1} Menang! 🎉`;
+        document.getElementById('winner-overlay').style.display='flex';
+    }
+
+    function spawnConfetti() {
+        const colors=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bff'];
+        for(let i=0;i<40;i++) {
+            const d=document.createElement('div'); d.className='confetti-piece';
+            d.style.left=Math.random()*100+'%'; d.style.top='-10px';
+            d.style.background=colors[i%colors.length]; d.style.borderRadius=Math.random()>0.5?'50%':'0';
+            d.style.animationDelay=Math.random()*1+'s';
+            document.body.appendChild(d); setTimeout(()=>d.remove(),3500);
+        }
+    }
+
+    function startCountdown(cb) {
+        const ov=document.getElementById('countdown-overlay');
+        const txt=document.getElementById('countdown-text');
+        ov.style.display='flex';
+        let c=3;
+        txt.textContent=c; txt.className='text-white text-8xl md:text-9xl font-black countdown-pop'; playCountdown();
+        const iv=setInterval(()=>{
+            c--; if(c>0){txt.textContent=c;txt.className='';void txt.offsetWidth;txt.className='text-white text-8xl md:text-9xl font-black countdown-pop';playCountdown();}
+            else if(c===0){txt.textContent='Mulai!';txt.className='';void txt.offsetWidth;txt.className='text-white text-8xl md:text-9xl font-black countdown-pop';playTone(880,0.4,'sine');}
+            else{clearInterval(iv);ov.style.display='none';cb();}
+        },900);
+    }
+
+    function showGame(type) {
+        hideAll();
+        if(type==='balap') {
+            document.getElementById('balap-screen').style.display='block';
+            buildNumpad('b-pad1',0,'b'); buildNumpad('b-pad2',1,'b');
+            bPos=[0,0]; updateBalap();
+            startCountdown(()=>{ gameActive=true; newQuestion(0,'b'); newQuestion(1,'b'); });
+        } else {
+            document.getElementById('mode-screen').style.display='flex';
+            buildModeGrid();
+        }
+        currentGame=type;
+    }
+
+    function buildModeGrid() {
+        const g=document.getElementById('mode-grid'); g.innerHTML='';
+        MODES.forEach(m=>{
+            const b=document.createElement('button');
+            b.className='bg-white rounded-2xl p-3 shadow-md hover:shadow-lg hover:scale-105 transition-all flex flex-col items-center gap-1';
+            b.innerHTML=`<span class="text-2xl">${m.icon}</span><span class="text-xs font-bold">${m.label}</span>`;
+            b.onclick=()=>startTarik(m.id); g.appendChild(b);
+        });
+    }
+
+    function startTarik(mode) {
+        currentMode=mode; hideAll();
+        document.getElementById('tarik-screen').style.display='block';
+        buildNumpad('t-pad1',0,'t'); buildNumpad('t-pad2',1,'t');
+        tPos=0; updateTarik();
+        startCountdown(()=>{ gameActive=true; newQuestion(0,'t'); newQuestion(1,'t'); });
+    }
+
+    function hideAll() {
+        gameActive=false;
+        ['menu-screen','mode-screen','balap-screen','tarik-screen'].forEach(id=>{
+            document.getElementById(id).style.display='none';
+        });
+        document.getElementById('winner-overlay').style.display='none';
+    }
+
+    function backToMenu() { hideAll(); document.getElementById('menu-screen').style.display='flex'; }
+
+    // Init
+    document.getElementById('menu-screen').style.display='flex';
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a17d38fa1633926c',t:'MTc4MzQ5NDEzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
